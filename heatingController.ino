@@ -74,6 +74,9 @@ void loop()
     
   }
   else {
+    
+  }
+  
   // stavy
   // spi -> nespi = stisk libovolneno tlacitka
   // nespi -> spi = 10 vterin bez stisku tlacitka

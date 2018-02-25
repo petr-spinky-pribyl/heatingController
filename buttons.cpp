@@ -4,7 +4,7 @@ void ButtonController::init() {
   pinMode(BTPLUS_PIN, INPUT);
   pinMode(BTMINUS_PIN, INPUT);
   pinMode(BTSETUP_PIN, INPUT);
-  timepressed = 0;
+  timePressed = 0;
   pressStartTime = 0;
   state = NOTHING_PRESSED;
 }
@@ -17,7 +17,7 @@ byte ButtonController::collectButtonState() {
   if (buttonPlusState == LOW && 
       buttonMinusState == LOW && 
       buttonSetupState == LOW) {
-    if (state == BTLONG2_PRESSED || state == BTLONG4_PRESSED) {
+    if (state == BTLONG2_PRESSED || state == BTLONG5_PRESSED) {
       timePressed = millis() - pressStartTime;
     }
     else {
@@ -54,11 +54,11 @@ byte ButtonController::collectButtonState() {
     state = BTSETUP_PRESSED;
   }
 
-  if (timepressed > LONG2_LIMIT) {
+  if (timePressed > LONG2_LIMIT) {
     state |= BTLONG2_PRESSED;
   }
   
-  if (timepressed > LONG5_LIMIT) {
+  if (timePressed > LONG5_LIMIT) {
     state |= BTLONG5_PRESSED;
   }
   

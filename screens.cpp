@@ -1,6 +1,14 @@
 #include "screens.h"
 #include "conversion.h"
 
+  /**
+   * Factory pro ziskani instnce obrazovky podle kodu
+   */
+  static Screen::getScreen(byte screenCode) {
+    
+  }
+
+
 TemperatureScreen::TemperatureScreen(float* _t1, float* _t2, byte* _hours, byte* _minutes) {
   t1 = _t1;
   t2 = _t2;
@@ -21,5 +29,9 @@ void TemperatureScreen::draw(LiquidCrystal_I2C lcd) {
   sprintf(buffer, "t2: %2d.%1d", (int)*t2, decimalPart(*t2, 10));
   lcd.setCursor(0,1);
   lcd.print(buffer);
+}
+
+Screen* TemperatureScreen::manageButtons(ButtonController* buttons) {
+  
 }
 

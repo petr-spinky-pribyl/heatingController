@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "LiquidCrystal_I2C.h"
+#include "buttons.h"
 
 #define TEMPERATURE_SCREEN 0x1
 #define DELTA_SCREEN 0x2
@@ -24,6 +25,14 @@ public:
     * Vykresleni stranky.
     */
   virtual void draw(LiquidCrystal_I2C lcd) = 0;
+  /**
+   * Osetreni stisku klaves
+   */
+  virtual Screen* manageButtons(ButtonController* buttons) = 0;
+  /**
+   * Factory pro ziskani instnce obrazovky podle kodu
+   */
+  static Screen* getScreen(byte screenCode);
 };
 
 class TemperatureScreen : public Screen {
@@ -31,6 +40,7 @@ class TemperatureScreen : public Screen {
 public:
   TemperatureScreen(float* _t1, float* _t2, byte* _hours, byte* minutes);
   void draw(LiquidCrystal_I2C lcd);
+  Screen* manageButtons(ButtonController* buttons);
 
 private:
   float* t1;
