@@ -24,6 +24,8 @@ unsigned int settingsDelay = 5000;
 // Obrazovky
 Screen* actualScreen;
 TemperatureScreen* temperatureScreen;
+DeltaScreen*       deltaScreen;
+TotalScreen*       totalScreen;
 
 // Obsluha tlacitek
 ButtonController* buttons;
@@ -34,6 +36,8 @@ float t1;
 float t2;
 byte hours;
 byte minutes;
+float delta;
+unsigned long totalTime;
 
 
 void setup()
@@ -43,9 +47,13 @@ void setup()
   t2 = 2.1;
   hours = 15;
   minutes = 3;
+  totalTime = 325;
+  delta = 2.5;
   
   // inicializace obrazovek
   temperatureScreen = new TemperatureScreen(&t1, &t2, &hours, &minutes);
+  deltaScreen = new DeltaScreen(&delta);
+  totalScreen = new TotalScreen(&totalTime);
   actualScreen = temperatureScreen;
 
   // inicializace tlacitek
@@ -61,6 +69,8 @@ void setup()
   lcd.print("*heating control");
   delay(2000);
   lcd.clear();
+
+  Serial.begin(9600);
 }
 
 void loop()
@@ -70,30 +80,40 @@ void loop()
     dirty = false;
   }
 
-  if (isSetup(actualScreen)) {
-    
-  }
-  else {
-    
-  }
-  
   // stavy
   // spi -> nespi = stisk libovolneno tlacitka
   // nespi -> spi = 10 vterin bez stisku tlacitka
   // provoz -> nastaveni = stisk tlacitka Set
   // nastaveni -> provoz = 5 vterin bez stisku tlacitka
+  buttonsState = buttons->collectButtonState();
+  if (sleeping && (buttonsState & (BTPLUS_RELEASED | BTMINUS_RELEASED | BTSETUP_RELEASED))) {
+    lcd.backlight();
+    sleeping = false;
+    actualScreen->draw(lcd);
+    return;
+  }
+  if (!sleeping && (buttonsState == (BTLONG5_PRESSED | BTLONG2_PRESSED))) {
+    lcd.noBacklight();
+    sleeping = true;
+    return;
+  }
+  dirty = actualScreen->doAction(buttonsState, &actualScreenNumber);
+  actualScreen = getScreenByNumber(actualScreenNumber);
+}
 
-  if (buttonSetState == HIGH)
-    if (sleeping) {
-      sleeping = false;
-      lcd.backlight();
-      delay(500);
-    }
-    else {
-      sleeping = true;
-      lcd.noBacklight();
-      delay(500);
-    }
-    
+Screen* getScreenByNumber(byte screenNumber) {
+// TEMPERATURE_SCREEN 0x1
+// DELTA_SCREEN 0x2
+// DAILY_SCREEN 0x3
+// TOTAL_SCREEN 0x4
+// SETUP_DELTA_SCREEN 0x11
+// SETUP_DATE_SCREEN 0x12
+// SETUP_TIME_SCREEN 0x13
+
+  switch (screenNumber) {
+    case TEMPERATURE_SCREEN : return temperatureScreen;
+    case DELTA_SCREEN : return deltaScreen;
+    case TOTAL_SCREEN : return totalScreen;
+  }
 }
 

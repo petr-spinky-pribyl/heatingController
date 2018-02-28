@@ -7,6 +7,6 @@ int decimalPart(float f, int m) {
   
   frac = modf(f, &intp);
 
-  return (int)(f * m + 0.5);
+  return (int)(frac * m + 0.5);
 }
 

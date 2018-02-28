@@ -12,9 +12,6 @@
 #define SETUP_DELTA_SCREEN 0x11
 #define SETUP_DATE_SCREEN 0x12
 #define SETUP_TIME_SCREEN 0x13
-#define SETUP_SCREEN 0x10
-
-#define isSetup(s) (s & SETUP_SCREEN)
 
 /**
  * Obecna trida pro obsluhu obrazovky. Jednotlive podtridy implementuji samotne chovani
@@ -28,11 +25,7 @@ public:
   /**
    * Osetreni stisku klaves
    */
-  virtual Screen* manageButtons(ButtonController* buttons) = 0;
-  /**
-   * Factory pro ziskani instnce obrazovky podle kodu
-   */
-  static Screen* getScreen(byte screenCode);
+  virtual boolean doAction(byte buttonsState, byte* newScreen) = 0;
 };
 
 class TemperatureScreen : public Screen {
@@ -40,13 +33,35 @@ class TemperatureScreen : public Screen {
 public:
   TemperatureScreen(float* _t1, float* _t2, byte* _hours, byte* minutes);
   void draw(LiquidCrystal_I2C lcd);
-  Screen* manageButtons(ButtonController* buttons);
+  boolean doAction(byte buttonsState, byte* newScreen);
 
 private:
   float* t1;
   float* t2;
   byte* hours;
   byte* minutes;
+};
+
+class DeltaScreen : public Screen {
+
+public:
+  DeltaScreen(float* _delta);
+  void draw(LiquidCrystal_I2C lcd);
+  boolean doAction(byte buttonsState, byte* newScreen);
+
+private:
+  float* delta;
+};
+
+class TotalScreen : public Screen {
+
+public:
+  TotalScreen(unsigned long* _total);
+  void draw(LiquidCrystal_I2C lcd);
+  boolean doAction(byte buttonsState, byte* newScreen);
+
+private:
+  unsigned long* total;
 };
 
 #endif // SPI_SCREENS_H

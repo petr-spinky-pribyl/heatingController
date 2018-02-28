@@ -17,14 +17,29 @@ byte ButtonController::collectButtonState() {
   if (buttonPlusState == LOW && 
       buttonMinusState == LOW && 
       buttonSetupState == LOW) {
-    if (state == BTLONG2_PRESSED || state == BTLONG5_PRESSED) {
-      timePressed = millis() - pressStartTime;
+    if (state & BTPLUS_PRESSED) {
+      state = BTPLUS_RELEASED;
+      timePressed = 0;
+      pressStartTime = millis();
     }
     else {
-      state = NOTHING_PRESSED;
-      timePressed = 0;
-      pressStartTime = 0;
-      return state;
+      if (state & BTMINUS_PRESSED) {
+        state = BTMINUS_RELEASED;
+        timePressed = 0;
+        pressStartTime = millis();
+      }
+      else {
+        if (state & BTSETUP_PRESSED) {
+          state = BTSETUP_RELEASED;
+          timePressed = 0;
+          pressStartTime = millis();
+          return state;
+        }
+        else {
+          timePressed = millis() - pressStartTime;
+          state = NOTHING_PRESSED;
+        }
+      }
     }
   }
   else {
@@ -37,21 +52,33 @@ byte ButtonController::collectButtonState() {
     if (state & BTPLUS_PRESSED) {
       timePressed = millis() - pressStartTime;
     }
-    state = BTPLUS_PRESSED;
+    else {
+      timePressed = 0;
+      pressStartTime = millis();
+      state = BTPLUS_PRESSED;
+    }
   }
 
   if (buttonMinusState == HIGH) {
     if (state & BTMINUS_PRESSED) {
       timePressed = millis() - pressStartTime;
     }
-    state = BTMINUS_PRESSED;
+    else {
+      timePressed = 0;
+      pressStartTime = millis();
+      state = BTMINUS_PRESSED; 
+    }
   }
 
   if (buttonSetupState == HIGH) {
     if (state & BTSETUP_PRESSED) {
       timePressed = millis() - pressStartTime;
     }
-    state = BTSETUP_PRESSED;
+    else {
+      timePressed = 0;
+      pressStartTime = millis();
+      state = BTSETUP_PRESSED;
+    }
   }
 
   if (timePressed > LONG2_LIMIT) {
@@ -61,6 +88,7 @@ byte ButtonController::collectButtonState() {
   if (timePressed > LONG5_LIMIT) {
     state |= BTLONG5_PRESSED;
   }
-  
+
+  return state;
 }
 
