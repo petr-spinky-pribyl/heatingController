@@ -2,6 +2,7 @@
 #define SPI_SCREENS_H
 
 #include <Arduino.h>
+#include <TimeLib.h>
 #include "LiquidCrystal_I2C.h"
 #include "buttons.h"
 
@@ -31,15 +32,14 @@ public:
 class TemperatureScreen : public Screen {
 
 public:
-  TemperatureScreen(float* _t1, float* _t2, byte* _hours, byte* minutes);
+  TemperatureScreen(float* _t1, float* _t2);
   void draw(LiquidCrystal_I2C lcd);
   boolean doAction(byte buttonsState, byte* newScreen);
 
 private:
-  float* t1;
-  float* t2;
-  byte* hours;
-  byte* minutes;
+  float*  t1;
+  float*  t2;
+  int     oldMinute;
 };
 
 class DeltaScreen : public Screen {
@@ -51,6 +51,17 @@ public:
 
 private:
   float* delta;
+};
+
+class DailyScreen : public Screen {
+
+public:
+  DailyScreen(unsigned long* _dailyTotal);
+  void draw(LiquidCrystal_I2C lcd);
+  boolean doAction(byte buttonsState, byte* newScreen);
+
+private:
+  unsigned long* dailyTotal;
 };
 
 class TotalScreen : public Screen {

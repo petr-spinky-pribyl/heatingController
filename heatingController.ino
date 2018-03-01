@@ -3,6 +3,7 @@
 
 // knihovny pro LCD přes I2C
 #include <Wire.h>
+#include <TimeLib.h>
 #include "LiquidCrystal_I2C.h"
 #include "screens.h"
 #include "buttons.h"
@@ -25,6 +26,7 @@ unsigned int settingsDelay = 5000;
 Screen* actualScreen;
 TemperatureScreen* temperatureScreen;
 DeltaScreen*       deltaScreen;
+DailyScreen*       dailyScreen;
 TotalScreen*       totalScreen;
 
 // Obsluha tlacitek
@@ -34,9 +36,8 @@ byte buttonsState;
 // data kontroleru
 float t1;
 float t2;
-byte hours;
-byte minutes;
 float delta;
+unsigned long dailyTime;
 unsigned long totalTime;
 
 
@@ -45,14 +46,14 @@ void setup()
   // inicializace dat kontroleru
   t1 = 15.2;
   t2 = 2.1;
-  hours = 15;
-  minutes = 3;
+  setTime(0, 0, 0, 1, 1, 2017);
   totalTime = 325;
   delta = 2.5;
   
   // inicializace obrazovek
-  temperatureScreen = new TemperatureScreen(&t1, &t2, &hours, &minutes);
+  temperatureScreen = new TemperatureScreen(&t1, &t2);
   deltaScreen = new DeltaScreen(&delta);
+  dailyScreen = new DailyScreen(&dailyTime);
   totalScreen = new TotalScreen(&totalTime);
   actualScreen = temperatureScreen;
 
@@ -92,10 +93,16 @@ void loop()
     actualScreen->draw(lcd);
     return;
   }
-  if (!sleeping && (buttonsState == (BTLONG5_PRESSED | BTLONG2_PRESSED))) {
+  if (!sleeping && (buttonsState == (BTLONG5_PRESSED | BTLONG2_PRESSED)) && actualScreenNumber <= TOTAL_SCREEN) {
     lcd.noBacklight();
     sleeping = true;
     return;
+  }
+  if (!sleeping && (buttonsState == (BTLONG5_PRESSED | BTLONG2_PRESSED)) && actualScreenNumber > TOTAL_SCREEN) {
+    actualScreenNumber = TEMPERATURE_SCREEN;
+    actualScreen = temperatureScreen;
+    dirty = true;
+    return; 
   }
   dirty = actualScreen->doAction(buttonsState, &actualScreenNumber);
   actualScreen = getScreenByNumber(actualScreenNumber);
@@ -113,6 +120,7 @@ Screen* getScreenByNumber(byte screenNumber) {
   switch (screenNumber) {
     case TEMPERATURE_SCREEN : return temperatureScreen;
     case DELTA_SCREEN : return deltaScreen;
+    case DAILY_SCREEN : return dailyScreen;
     case TOTAL_SCREEN : return totalScreen;
   }
 }

@@ -1,14 +1,10 @@
 #include "screens.h"
 #include "conversion.h"
 
-#define dirty true
-#define clean false
-
-TemperatureScreen::TemperatureScreen(float* _t1, float* _t2, byte* _hours, byte* _minutes) {
+TemperatureScreen::TemperatureScreen(float* _t1, float* _t2) {
   t1 = _t1;
   t2 = _t2;
-  hours = _hours;
-  minutes = _minutes;
+  oldMinute = minute();
 }
 
 void TemperatureScreen::draw(LiquidCrystal_I2C lcd) {
@@ -16,7 +12,7 @@ void TemperatureScreen::draw(LiquidCrystal_I2C lcd) {
 
   lcd.clear();
 
-  sprintf(buffer, "t1: %2d.%1d   %02d:%02d", (int)*t1, decimalPart(*t1, 10), *hours, *minutes);
+  sprintf(buffer, "t1: %2d.%1d   %02d:%02d", (int)*t1, decimalPart(*t1, 10), hour(), minute());
   lcd.setCursor(0,0);
   lcd.print(buffer);
 
@@ -26,19 +22,25 @@ void TemperatureScreen::draw(LiquidCrystal_I2C lcd) {
 }
 
 boolean TemperatureScreen::doAction(byte buttonsState, byte* newScreen) {
+  boolean redrawRequired = false;
+  
+  if (oldMinute != minute()) {
+    oldMinute = minute();
+    redrawRequired = true;
+  }
   if (buttonsState == BTPLUS_RELEASED) {
     *newScreen = DELTA_SCREEN;
-    return dirty;
+    redrawRequired = true;
   }
   if (buttonsState == BTMINUS_RELEASED) {
     *newScreen = TOTAL_SCREEN;
-    return dirty;
+    redrawRequired = true;
   }
   if (buttonsState == BTSETUP_RELEASED) {
     *newScreen = SETUP_DELTA_SCREEN;
-    return dirty;
+    redrawRequired = true;
   }
-  return clean;
+  return redrawRequired;
 }
 
 DeltaScreen::DeltaScreen(float* _delta) {
@@ -60,18 +62,51 @@ void DeltaScreen::draw(LiquidCrystal_I2C lcd) {
 
 boolean DeltaScreen::doAction(byte buttonsState, byte* newScreen) {
   if (buttonsState == BTPLUS_RELEASED) {
-    *newScreen = TOTAL_SCREEN;
-    return dirty;
+    *newScreen = DAILY_SCREEN;
+    return true;
   }
   if (buttonsState == BTMINUS_RELEASED) {
     *newScreen = TEMPERATURE_SCREEN;
-    return dirty;
+    return true;
   }
   if (buttonsState == BTSETUP_RELEASED) {
     *newScreen = SETUP_DELTA_SCREEN;
-    return dirty;
+    return true;
   }
-  return clean;
+  return false;
+}
+
+DailyScreen::DailyScreen(unsigned long* _dailyTotal) {
+  dailyTotal = _dailyTotal;
+}
+
+void DailyScreen::draw(LiquidCrystal_I2C lcd) {
+  char buffer[16];
+
+  lcd.clear();
+
+  lcd.setCursor(0,0);
+  lcd.print("Dnes spusteno");
+
+  sprintf(buffer, "%d:%d", (int)(*dailyTotal/60), *dailyTotal % 60);
+  lcd.setCursor(0,1);
+  lcd.print(buffer);
+}
+
+boolean DailyScreen::doAction(byte buttonsState, byte* newScreen) {
+  if (buttonsState == BTPLUS_RELEASED) {
+    *newScreen = TOTAL_SCREEN;
+    return true;
+  }
+  if (buttonsState == BTMINUS_RELEASED) {
+    *newScreen = DELTA_SCREEN;
+    return true;
+  }
+  if (buttonsState == BTSETUP_RELEASED) {
+    *newScreen = SETUP_DELTA_SCREEN;
+    return true;
+  }
+  return false;
 }
 
 TotalScreen::TotalScreen(unsigned long* _total) {
@@ -94,16 +129,16 @@ void TotalScreen::draw(LiquidCrystal_I2C lcd) {
 boolean TotalScreen::doAction(byte buttonsState, byte* newScreen) {
   if (buttonsState == BTPLUS_RELEASED) {
     *newScreen = TEMPERATURE_SCREEN;
-    return dirty;
+    return true;
   }
   if (buttonsState == BTMINUS_RELEASED) {
-    *newScreen = DELTA_SCREEN;
-    return dirty;
+    *newScreen = DAILY_SCREEN;
+    return true;
   }
   if (buttonsState == BTSETUP_RELEASED) {
     *newScreen = SETUP_DELTA_SCREEN;
-    return dirty;
+    return true;
   }
-  return clean;
+  return false;
 }
 
