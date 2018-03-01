@@ -142,3 +142,37 @@ boolean TotalScreen::doAction(byte buttonsState, byte* newScreen) {
   return false;
 }
 
+SetupDeltaScreen::SetupDeltaScreen(float* _delta) {
+  delta = _delta;
+}
+
+void SetupDeltaScreen::draw(LiquidCrystal_I2C lcd) {
+  char buffer[16];
+
+  lcd.clear();
+
+  lcd.setCursor(3,0);
+  lcd.print("( + / - )");
+
+  sprintf(buffer, "Delta: %2d.%1d", (int)*delta, decimalPart(*delta, 10));
+  lcd.setCursor(0,1);
+  lcd.print(buffer);
+}
+
+boolean SetupDeltaScreen::doAction(byte buttonsState, byte* newScreen) {
+  if (buttonsState == BTPLUS_RELEASED) {
+    *delta += 0.1f;
+    return true;
+  }
+  if (buttonsState == BTMINUS_RELEASED) {
+    *delta -= 0.1f;
+    return true;
+  }
+  if (buttonsState == BTSETUP_RELEASED) {
+    *newScreen = SETUP_DELTA_SCREEN;
+    return true;
+  }
+  return false;
+}
+
+

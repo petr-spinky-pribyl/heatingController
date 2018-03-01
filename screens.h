@@ -75,4 +75,16 @@ private:
   unsigned long* total;
 };
 
+class SetupDeltaScreen : public Screen {
+
+public:
+  SetupDeltaScreen(float* _delta);
+  void draw(LiquidCrystal_I2C lcd);
+  boolean doAction(byte buttonsState, byte* newScreen);
+
+private:
+  float* delta;
+};
+
+
 #endif // SPI_SCREENS_H
