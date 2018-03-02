@@ -175,4 +175,111 @@ boolean SetupDeltaScreen::doAction(byte buttonsState, byte* newScreen) {
   return false;
 }
 
+SetupDateScreen::SetupDateScreen() {
+  cursorPos = 0;
+}
+
+void SetupDateScreen::draw(LiquidCrystal_I2C lcd) {
+  char buffer[16];
+
+  lcd.clear();
+
+  lcd.setCursor(3,0);
+  lcd.print("( + / - )");
+
+  sprintf(buffer, "Datum: %2d.%2d.%4d", day(), month(), year());
+  lcd.setCursor(0,1);
+  lcd.print(buffer);
+
+  lcd.setCursor(7 + (cursorPos * 3), 1);
+  lcd.cursor();
+  lcd.blink();
+}
+
+boolean SetupDateScreen::doAction(byte buttonsState, byte* newScreen) {
+  if (buttonsState == BTPLUS_RELEASED) {
+    if (cursorPos == 0) {
+      setTime(hour(), minute(), second(), day() + 1, month(), year());
+    }
+    if (cursorPos == 1) {
+      setTime(hour(), minute(), second(), day(), month() + 1, year());
+    }
+    if (cursorPos == 2) {
+      setTime(hour(), minute(), second(), day(), month(), year() + 1);
+    }
+    return true;
+  }
+  if (buttonsState == BTMINUS_RELEASED) {
+    if (cursorPos == 0) {
+      setTime(hour(), minute(), second(), day() - 1, month(), year());
+    }
+    if (cursorPos == 1) {
+      setTime(hour(), minute(), second(), day(), month() - 1, year());
+    }
+    if (cursorPos == 2) {
+      setTime(hour(), minute(), second(), day(), month(), year() - 1);
+    }
+    return true;
+  }
+  if (buttonsState == BTSETUP_RELEASED) {
+    cursorPos++;
+    if (cursorPos == 3) {
+      cursorPos = 0;
+      *newScreen = SETUP_TIME_SCREEN;
+    }
+    return true;
+  }
+  return false;
+}
+
+SetupTimeScreen::SetupTimeScreen() {
+  cursorPos = 0;
+}
+
+void SetupTimeScreen::draw(LiquidCrystal_I2C lcd) {
+  char buffer[16];
+
+  lcd.clear();
+
+  lcd.setCursor(3,0);
+  lcd.print("( + / - )");
+
+  sprintf(buffer, "Cas: %2d.%2d.%4d", day(), month(), year());
+  lcd.setCursor(0,1);
+  lcd.print(buffer);
+
+  lcd.setCursor(5 + (cursorPos * 3), 1);
+  lcd.cursor();
+  lcd.blink();
+}
+
+boolean SetupTimeScreen::doAction(byte buttonsState, byte* newScreen) {
+  if (buttonsState == BTPLUS_RELEASED) {
+    if (cursorPos == 0) {
+      setTime(hour() + 1, minute(), second(), day(), month(), year());
+    }
+    if (cursorPos == 1) {
+      setTime(hour(), minute() + 1, second(), day(), month(), year());
+    }
+    return true;
+  }
+  if (buttonsState == BTMINUS_RELEASED) {
+    if (cursorPos == 0) {
+      setTime(hour() - 1, minute(), second(), day(), month(), year());
+    }
+    if (cursorPos == 1) {
+      setTime(hour(), minute() - 1, second(), day(), month(), year());
+    }
+    return true;
+  }
+  if (buttonsState == BTSETUP_RELEASED) {
+    cursorPos++;
+    if (cursorPos == 2) {
+      cursorPos = 0;
+      *newScreen = SETUP_DELTA_SCREEN;
+    }
+    return true;
+  }
+  return false;
+}
 

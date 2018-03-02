@@ -29,6 +29,8 @@ DeltaScreen*       deltaScreen;
 DailyScreen*       dailyScreen;
 TotalScreen*       totalScreen;
 SetupDeltaScreen*  setupDeltaScreen;
+SetupDateScreen*   setupDateScreen;
+SetupTimeScreen*   setupTimeScreen;
 
 // Obsluha tlacitek
 ButtonController* buttons;
@@ -57,6 +59,8 @@ void setup()
   dailyScreen = new DailyScreen(&dailyTime);
   totalScreen = new TotalScreen(&totalTime);
   setupDeltaScreen = new SetupDeltaScreen(&delta);
+  setupDateScreen = new SetupDateScreen();
+  setupTimeScreen = new SetupTimeScreen();
   actualScreen = temperatureScreen;
 
   // inicializace tlacitek
@@ -125,6 +129,8 @@ Screen* getScreenByNumber(byte screenNumber) {
     case DAILY_SCREEN       : return dailyScreen;
     case TOTAL_SCREEN       : return totalScreen;
     case SETUP_DELTA_SCREEN : return setupDeltaScreen;
+    case SETUP_DATE_SCREEN  : return setupDateScreen;
+    case SETUP_TIME_SCREEN  : return setupTimeScreen;
   }
 }
 

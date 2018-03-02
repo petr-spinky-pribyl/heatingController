@@ -86,5 +86,27 @@ private:
   float* delta;
 };
 
+class SetupDateScreen : public Screen {
+
+public:
+  SetupDateScreen();
+  void draw(LiquidCrystal_I2C lcd);
+  boolean doAction(byte buttonsState, byte* newScreen);
+
+private:
+  byte cursorPos;
+};
+
+class SetupTimeScreen : public Screen {
+
+public:
+  SetupTimeScreen();
+  void draw(LiquidCrystal_I2C lcd);
+  boolean doAction(byte buttonsState, byte* newScreen);
+
+private:
+  byte cursorPos;
+};
+
 
 #endif // SPI_SCREENS_H
