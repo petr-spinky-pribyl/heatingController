@@ -107,6 +107,7 @@ void loop()
   if (!sleeping && (buttonsState == (BTLONG5_PRESSED | BTLONG2_PRESSED)) && actualScreenNumber > TOTAL_SCREEN) {
     actualScreenNumber = TEMPERATURE_SCREEN;
     actualScreen = temperatureScreen;
+    buttons->resetTimer();
     dirty = true;
     return; 
   }

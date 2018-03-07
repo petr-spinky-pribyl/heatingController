@@ -1,5 +1,4 @@
 #include "screens.h"
-#include "conversion.h"
 
 TemperatureScreen::TemperatureScreen(float* _t1, float* _t2) {
   t1 = _t1;
@@ -9,16 +8,22 @@ TemperatureScreen::TemperatureScreen(float* _t1, float* _t2) {
 
 void TemperatureScreen::draw(LiquidCrystal_I2C lcd) {
   char buffer[16];
+  char tempStr[6];
+
 
   lcd.clear();
 
-  sprintf(buffer, "t1: %2d.%1d   %02d:%02d", (int)*t1, decimalPart(*t1, 10), hour(), minute());
+  dtostrf(*t1, 3, 1, tempStr);
+  sprintf(buffer, "t1: %s   %02d:%02d", tempStr, hour(), minute());
   lcd.setCursor(0,0);
   lcd.print(buffer);
 
-  sprintf(buffer, "t2: %2d.%1d", (int)*t2, decimalPart(*t2, 10));
+  dtostrf(*t2, 3, 1, tempStr);
+  sprintf(buffer, "t2: %s", tempStr);
   lcd.setCursor(0,1);
   lcd.print(buffer);
+  lcd.noCursor();
+  lcd.noBlink();
 }
 
 boolean TemperatureScreen::doAction(byte buttonsState, byte* newScreen) {
@@ -49,15 +54,19 @@ DeltaScreen::DeltaScreen(float* _delta) {
 
 void DeltaScreen::draw(LiquidCrystal_I2C lcd) {
   char buffer[16];
+  char deltaStr[6];
 
   lcd.clear();
 
   lcd.setCursor(0,0);
   lcd.print("Delta");
 
-  sprintf(buffer, "%2d.%1d", (int)*delta, decimalPart(*delta, 10));
+  dtostrf(*delta, 3, 1, deltaStr);
+  sprintf(buffer, "%s", deltaStr);
   lcd.setCursor(0,1);
   lcd.print(buffer);
+  lcd.noCursor();
+  lcd.noBlink();
 }
 
 boolean DeltaScreen::doAction(byte buttonsState, byte* newScreen) {
@@ -91,6 +100,8 @@ void DailyScreen::draw(LiquidCrystal_I2C lcd) {
   sprintf(buffer, "%d:%d", (int)(*dailyTotal/60), *dailyTotal % 60);
   lcd.setCursor(0,1);
   lcd.print(buffer);
+  lcd.noCursor();
+  lcd.noBlink();
 }
 
 boolean DailyScreen::doAction(byte buttonsState, byte* newScreen) {
@@ -124,6 +135,8 @@ void TotalScreen::draw(LiquidCrystal_I2C lcd) {
   sprintf(buffer, "%d:%d", (int)(*total/60), *total % 60);
   lcd.setCursor(0,1);
   lcd.print(buffer);
+  lcd.noCursor();
+  lcd.noBlink();
 }
 
 boolean TotalScreen::doAction(byte buttonsState, byte* newScreen) {
@@ -148,15 +161,19 @@ SetupDeltaScreen::SetupDeltaScreen(float* _delta) {
 
 void SetupDeltaScreen::draw(LiquidCrystal_I2C lcd) {
   char buffer[16];
+  char deltaStr[6];
 
   lcd.clear();
 
   lcd.setCursor(3,0);
   lcd.print("( + / - )");
 
-  sprintf(buffer, "Delta: %2d.%1d", (int)*delta, decimalPart(*delta, 10));
+  dtostrf(*delta, 3, 1, deltaStr);
+  sprintf(buffer, "Delta: %s", deltaStr);
   lcd.setCursor(0,1);
   lcd.print(buffer);
+  lcd.noCursor();
+  lcd.noBlink();
 }
 
 boolean SetupDeltaScreen::doAction(byte buttonsState, byte* newScreen) {
@@ -169,7 +186,7 @@ boolean SetupDeltaScreen::doAction(byte buttonsState, byte* newScreen) {
     return true;
   }
   if (buttonsState == BTSETUP_RELEASED) {
-    *newScreen = SETUP_DELTA_SCREEN;
+    *newScreen = SETUP_DATE_SCREEN;
     return true;
   }
   return false;
@@ -180,18 +197,23 @@ SetupDateScreen::SetupDateScreen() {
 }
 
 void SetupDateScreen::draw(LiquidCrystal_I2C lcd) {
-  char buffer[16];
+  char buffer[18];
 
   lcd.clear();
 
   lcd.setCursor(3,0);
   lcd.print("( + / - )");
 
-  sprintf(buffer, "Datum: %2d.%2d.%4d", day(), month(), year());
+  sprintf(buffer, "Datum:%2d.%2d.%4d", day(), month(), year());
   lcd.setCursor(0,1);
   lcd.print(buffer);
 
-  lcd.setCursor(7 + (cursorPos * 3), 1);
+  if (cursorPos == 2) {
+    lcd.setCursor(15, 1);
+  }
+  else {
+    lcd.setCursor(7 + (cursorPos * 3), 1);
+  }
   lcd.cursor();
   lcd.blink();
 }
@@ -244,11 +266,11 @@ void SetupTimeScreen::draw(LiquidCrystal_I2C lcd) {
   lcd.setCursor(3,0);
   lcd.print("( + / - )");
 
-  sprintf(buffer, "Cas: %2d.%2d.%4d", day(), month(), year());
+  sprintf(buffer, "Cas: %2d:%2d", hour(), minute());
   lcd.setCursor(0,1);
   lcd.print(buffer);
 
-  lcd.setCursor(5 + (cursorPos * 3), 1);
+  lcd.setCursor(6 + (cursorPos * 3), 1);
   lcd.cursor();
   lcd.blink();
 }

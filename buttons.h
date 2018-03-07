@@ -24,6 +24,7 @@
 class ButtonController {
 public:
   void init();
+  void resetTimer();
   byte collectButtonState();
 private:
   unsigned long timePressed;

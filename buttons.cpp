@@ -9,6 +9,11 @@ void ButtonController::init() {
   state = NOTHING_PRESSED;
 }
 
+void ButtonController::resetTimer() {
+  timePressed = 0;
+  pressStartTime = millis();
+}
+
 byte ButtonController::collectButtonState() {
   buttonPlusState = digitalRead(BTPLUS_PIN);
   buttonMinusState = digitalRead(BTMINUS_PIN);
