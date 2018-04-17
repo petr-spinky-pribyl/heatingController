@@ -2,6 +2,8 @@
 #define SPI_THERMOMETER_H
 
 #include <Arduino.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 #define MEASURING_INTERVAL  2000  // measure temperature every 2 seconds
 #define T1_PIN  0
@@ -33,7 +35,24 @@ private:
   int pin;
 };
 
-
+/**
+ * Class serves DS18B20 sensor
+ */
+class Sensor_DS18B20 {
+public:
+  /**
+   * Constructor connects termistor to specific pin
+   */
+  void init(int _pin);
+  
+  /**
+   * Read termistor resistance and convert it to temperature.
+   */
+  float getTemperature();
+private:
+  OneWire* oneWireDS;
+  DallasTemperature* sensor;
+};
 
 
 

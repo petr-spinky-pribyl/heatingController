@@ -1,6 +1,6 @@
 #include "thermometer.h"
 
-#define DIVIDER_RESISTANCE  1000
+#define DIVIDER_RESISTANCE  2690
 #define REFERENCE_VOLTAGE   5.0d
 
 TermistorKTY81_110::tempResistance TermistorKTY81_110::tempResistances[] = {
@@ -76,4 +76,15 @@ float TermistorKTY81_110::getTemperature() {
   
   return 0;
 };
+
+void Sensor_DS18B20::init(int _pin) {
+  oneWireDS = new OneWire(_pin);
+  sensor = new DallasTemperature(oneWireDS);
+}
+
+float Sensor_DS18B20::getTemperature() {
+  sensor->requestTemperatures();
+  return sensor->getTempCByIndex(0);
+}
+
 

@@ -38,9 +38,12 @@ ButtonController* buttons;
 byte buttonsState;
 
 // teplomery
-TermistorKTY81_110*  termistor1;
-TermistorKTY81_110*  termistor2;
+//TermistorKTY81_110*  termistor1;
+//TermistorKTY81_110*  termistor2;
+Sensor_DS18B20*      thermometer1;
+Sensor_DS18B20*      thermometer2;
 unsigned long        lastMeasure;
+unsigned long        measureInterval = 2000;
 
 // data kontroleru
 float t1;
@@ -76,12 +79,14 @@ void setup()
     Serial.println("Start");
 
   // inicializace teplomeru
-  termistor1 = new TermistorKTY81_110();
-  termistor2 = new TermistorKTY81_110();
-  termistor1->init(T1_PIN);
-  termistor2->init(T2_PIN);
-  t1 = termistor1->getTemperature();
-  t2 = termistor2->getTemperature();
+//  termistor1 = new TermistorKTY81_110();
+//  termistor2 = new TermistorKTY81_110();
+//  termistor1->init(T1_PIN);
+//  termistor2->init(T2_PIN);
+  thermometer1 = new Sensor_DS18B20();
+  thermometer1->init(5);
+  t1 = thermometer1->getTemperature();
+//  t2 = termistor2->getTemperature();
   lastMeasure = 0;
   
   // inicializace LCD
@@ -126,6 +131,11 @@ void loop()
     dirty = true;
     return; 
   }
+  if (abs(millis() - lastMeasure) > measureInterval) {
+    lastMeasure = millis();
+    t1 = thermometer1->getTemperature();
+  }
+  
   dirty = actualScreen->doAction(buttonsState, &actualScreenNumber);
   actualScreen = getScreenByNumber(actualScreenNumber);
 }
