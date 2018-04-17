@@ -3,6 +3,10 @@
 
 #include <Arduino.h>
 
+#define MEASURING_INTERVAL  2000  // measure temperature every 2 seconds
+#define T1_PIN  0
+#define T2_PIN  1
+
 /**
  * Class serves KTY81-110 termistor
  */
@@ -11,6 +15,7 @@ public:
   struct tempResistance {
     int temperature;
     int lowResistance;
+    int midResistance;
     int highResistance;
   };
 

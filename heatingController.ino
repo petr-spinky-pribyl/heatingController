@@ -7,6 +7,7 @@
 #include "LiquidCrystal_I2C.h"
 #include "screens.h"
 #include "buttons.h"
+#include "thermometer.h"
 
 // nastavení adresy I2C (0x27 v mém případě),
 // a dále počtu znaků a řádků LCD, zde 16x2
@@ -36,6 +37,11 @@ SetupTimeScreen*   setupTimeScreen;
 ButtonController* buttons;
 byte buttonsState;
 
+// teplomery
+TermistorKTY81_110*  termistor1;
+TermistorKTY81_110*  termistor2;
+unsigned long        lastMeasure;
+
 // data kontroleru
 float t1;
 float t2;
@@ -47,10 +53,8 @@ unsigned long totalTime;
 void setup()
 {
   // inicializace dat kontroleru
-  t1 = 15.2;
-  t2 = 2.1;
   setTime(0, 0, 0, 1, 1, 2017);
-  totalTime = 325;
+  totalTime = 0;
   delta = 2.5;
   
   // inicializace obrazovek
@@ -67,6 +71,18 @@ void setup()
   buttons = new ButtonController();
   buttons->init();
   buttonsState = NOTHING_PRESSED;
+
+  Serial.begin(9600);
+    Serial.println("Start");
+
+  // inicializace teplomeru
+  termistor1 = new TermistorKTY81_110();
+  termistor2 = new TermistorKTY81_110();
+  termistor1->init(T1_PIN);
+  termistor2->init(T2_PIN);
+  t1 = termistor1->getTemperature();
+  t2 = termistor2->getTemperature();
+  lastMeasure = 0;
   
   // inicializace LCD
   lcd.begin();
@@ -77,7 +93,6 @@ void setup()
   delay(2000);
   lcd.clear();
 
-  Serial.begin(9600);
 }
 
 void loop()
